@@ -193,8 +193,8 @@ def timer_func2():
 
 
 def main():
-    # timer_func()
-    # timer_func2()
+    timer_func()
+    timer_func2()
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_handler(CommandHandler('start', start, filters=Filters.private))
     dp.add_handler(CommandHandler('recent', recent, filters=Filters.private))
