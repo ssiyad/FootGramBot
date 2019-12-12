@@ -1,7 +1,8 @@
 import datetime
 from threading import Timer
 
-from telegram.ext import CommandHandler, run_async
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import CommandHandler, CallbackQueryHandler, run_async
 from telegram.ext import Filters
 
 from FootGramBot import FGM, COMPETITIONS
@@ -41,69 +42,71 @@ def start(update, context):
 
 
 @run_async
-def matches(update, context):
+def upcoming(update, context):
     SCHEDULED = []
-    LIVE = []
-    FINISHED = []
+    COMPS = []
     SCHEDULED_MSG = 'No Upcoming Matches'
-    LIVE_MSG = 'No Live Matches'
-    FINISHED_MSG = 'No Finished Matches'
     match_data = FGM.read_data()
     for match in match_data:
         match_date = datetime.datetime.strptime(match['utcDate'], '%Y-%m-%dT%H:%M:%SZ')
         time_diff = match_date - datetime.datetime.utcnow()
-        if -2 < time_diff.days < 2:
+        if -1 < time_diff.days < 3:
             if match['status'] == 'SCHEDULED':
+                if match['comp'] not in COMPS:
+                    COMPS.append(match['comp'])
                 SCHEDULED.append(match)
-            elif match['status'] == 'FINISHED':
-                FINISHED.append(match)
-            else:
-                LIVE.append(match)
 
     if SCHEDULED:
-        SCHEDULED_MSG = 'UPCOMING\n'
-        for match in SCHEDULED:
-            SCHEDULED_MSG += '---\n' \
-                             + datetime.datetime.strptime(match['utcDate'], '%Y-%m-%dT%H:%M:%SZ').strftime('%A %d %B %l:%M %p') \
-                             + '\n**' \
-                             + match['homeTeam']['name'] \
-                             + '** vs **' \
-                             + match['awayTeam']['name'] \
-                             + '**\n'
+        SCHEDULED_MSG = 'Choose below to see upcoming matches\n'
 
-    if LIVE:
-        LIVE_MSG = 'LIVE\n'
-        for match in LIVE:
-            LIVE_MSG += '---\n' \
-                        + match['homeTeam']['name'] \
-                        + ' vs ' \
-                        + match['awayTeam']['name'] \
-                        + '\n'
+    KEYBOARD = []
+
+    for comp in COMPS:
+        but = [InlineKeyboardButton(FGM.find_comp(str(comp)), callback_data='upcoming' + str(comp))]
+        KEYBOARD.append(but)
+
+    REPLY_MARKUP = InlineKeyboardMarkup(KEYBOARD)
+
+    context.bot.send_message(update.effective_chat.id, SCHEDULED_MSG,
+                             parse_mode="MARKDOWN", reply_markup=REPLY_MARKUP)
+
+
+@run_async
+def recent(update, context):
+    FINISHED = []
+    COMPS = []
+    FINISHED_MSG = 'No Recent Matches'
+    match_data = FGM.read_data()
+    for match in match_data:
+        match_date = datetime.datetime.strptime(match['utcDate'], '%Y-%m-%dT%H:%M:%SZ')
+        time_diff = match_date - datetime.datetime.utcnow()
+        if -4 < time_diff.days < 0:
+            if match['status'] == 'FINISHED':
+                if match['comp'] not in COMPS:
+                    COMPS.append(match['comp'])
+                FINISHED.append(match)
 
     if FINISHED:
-        FINISHED_MSG = 'FINISHED\n'
-        for match in FINISHED:
-            FINISHED_MSG += '---\n' \
-                            + match['homeTeam']['name'] \
-                            + ' ' \
-                            + str(match['score']['fullTime']['homeTeam']) \
-                            + ' vs ' \
-                            + str(match['score']['fullTime']['awayTeam']) \
-                            + ' ' \
-                            + match['awayTeam']['name'] \
-                            + '\n'
+        FINISHED_MSG = 'Select below to get recent matches\n'
 
-    context.bot.send_message(update.effective_chat.id, FINISHED_MSG, parse_mode="MARKDOWN")
-    context.bot.send_message(update.effective_chat.id, LIVE_MSG, parse_mode="MARKDOWN")
-    context.bot.send_message(update.effective_chat.id, SCHEDULED_MSG, parse_mode="MARKDOWN")
+    KEYBOARD = []
+
+    for comp in COMPS:
+        but = [InlineKeyboardButton(FGM.find_comp(str(comp)), callback_data='recent' + str(comp))]
+        KEYBOARD.append(but)
+
+    REPLY_MARKUP = InlineKeyboardMarkup(KEYBOARD)
+
+    context.bot.send_message(update.effective_chat.id, FINISHED_MSG,
+                             parse_mode="MARKDOWN", reply_markup=REPLY_MARKUP)
 
 
 @run_async
 def live(update, context):
-    LIVE_MSG = 'No live matches! Use /matches to get match list'
+    LIVE_MSG = 'No live matches! Use /recent or /upcoming to get match list'
     live_scores = FGM.read_file('live.json')
     if live_scores:
-        LIVE_MSG = 'LIVE\n'
+        LIVE_MSG = 'Live Matches\n'
         for score in live_scores:
             LIVE_MSG += '---\n' \
                         + score['time'] \
@@ -120,6 +123,65 @@ def live(update, context):
     context.bot.send_message(update.effective_chat.id, LIVE_MSG, parse_mode="MARKDOWN")
 
 
+@run_async
+def button(update, context):
+    query = update.callback_query
+
+    EDIT_MSG = ''
+
+    if 'upcoming' in query.data:
+        SCHEDULED = []
+        comp = FGM.find_comp(query.data.replace('upcoming', ''))
+        EDIT_MSG = 'No Upcoming Matches in ' + comp
+        match_data = FGM.read_data()
+        for match in match_data:
+            match_date = datetime.datetime.strptime(match['utcDate'], '%Y-%m-%dT%H:%M:%SZ')
+            time_diff = match_date - datetime.datetime.utcnow()
+            if -1 < time_diff.days < 3:
+                if match['status'] == 'SCHEDULED' and str(match['comp']) == query.data.replace('upcoming', ''):
+                    SCHEDULED.append(match)
+
+        if SCHEDULED:
+            EDIT_MSG = f'Upcoming {comp} matches\n'
+            for match in SCHEDULED:
+                EDIT_MSG += '---\n' \
+                            + datetime.datetime.strptime(match['utcDate'], '%Y-%m-%dT%H:%M:%SZ').strftime('%A %d %B %l:%M %p') \
+                            + '\n**' \
+                            + match['homeTeam']['name'] \
+                            + '** vs **' \
+                            + match['awayTeam']['name'] \
+                            + '**\n'
+
+    elif 'recent' in query.data:
+        FINISHED = []
+        comp = FGM.find_comp(query.data.replace('recent', ''))
+        match_data = FGM.read_data()
+        EDIT_MSG = 'No recent matches in ' + comp
+        for match in match_data:
+            match_date = datetime.datetime.strptime(match['utcDate'], '%Y-%m-%dT%H:%M:%SZ')
+            time_diff = match_date - datetime.datetime.utcnow()
+            if -4 < time_diff.days < 0:
+                if match['status'] == 'FINISHED' and str(match['comp']) == query.data.replace('recent', ''):
+                    FINISHED.append(match)
+
+        if FINISHED:
+            EDIT_MSG = f'Recent {comp} matches\n'
+            for match in FINISHED:
+                EDIT_MSG += '---\n' \
+                                + match['homeTeam']['name'] \
+                                + ' ' \
+                                + str(match['score']['fullTime']['homeTeam']) \
+                                + ' vs ' \
+                                + str(match['score']['fullTime']['awayTeam']) \
+                                + ' ' \
+                                + match['awayTeam']['name'] \
+                                + '\n'
+
+    context.bot.edit_message_text(text=EDIT_MSG, chat_id=query.message.chat_id,
+                                  message_id=query.message.message_id,
+                                  parse_mode="MARKDOWN")
+
+
 def timer_func():
     Timer(60.0, timer_func).start()
     update_matches()
@@ -133,9 +195,10 @@ def timer_func2():
 def main():
     timer_func()
     timer_func2()
-    FGM.live_matches()
+    dp.add_handler(CallbackQueryHandler(button))
     dp.add_handler(CommandHandler('start', start, filters=Filters.private))
-    dp.add_handler(CommandHandler('matches', matches, filters=Filters.private))
+    dp.add_handler(CommandHandler('recent', recent, filters=Filters.private))
+    dp.add_handler(CommandHandler('upcoming', upcoming, filters=Filters.private))
     dp.add_handler(CommandHandler('live', live, filters=Filters.private))
     updater.start_polling()
     updater.idle()

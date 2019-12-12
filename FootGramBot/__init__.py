@@ -5,6 +5,8 @@ from telegram.ext import Updater
 
 import config
 
+from competitions import comps as competitions
+
 COMPETITIONS = config.COMPETITIONS
 BOT_API = config.BOT_API
 
@@ -24,6 +26,13 @@ class FGM(object):
         connection.request('GET', '/')
         response = json.loads(connection.getresponse().read().decode())
         return response
+
+    @staticmethod
+    def find_comp(comp):
+        if comp in competitions:
+            return competitions[comp]
+        else:
+            return 'Err! Report this'
 
     @staticmethod
     def read_data():
