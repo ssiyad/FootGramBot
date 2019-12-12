@@ -18,12 +18,20 @@ def update_matches():
                 match['comp'] = comp
                 MATCH_LIST.append(match)
 
-    FGM.save_data(MATCH_LIST)
+    if MATCH_LIST:
+        FGM.save_data(MATCH_LIST)
 
 
-def timer_func():
-    Timer(10.0, timer_func).start()
-    update_matches()
+def update_live():
+    live_data = FGM.live_matches()
+    LIVE = []
+    for match in live_data['games']:
+        d = {'homeTeam': {'name': match['homeTeamName']}, 'awayTeam': {'name': match['awayTeamName']},
+             'score': {'fullTime': {'homeTeam': str(match['goalsHomeTeam']), 'awayTeam': str(match['goalsAwayTeam'])}},
+             'league': match['league'], 'time': str(match['time'])}
+        LIVE.append(d)
+
+    FGM.save_file(LIVE, 'live.json')
 
 
 @run_async
@@ -32,6 +40,7 @@ def start(update, context):
                              text="Hello there! I'm a bot made by @ssiyad . Feel free to contact him for any assistance")
 
 
+@run_async
 def matches(update, context):
     SCHEDULED = []
     LIVE = []
@@ -89,10 +98,45 @@ def matches(update, context):
     context.bot.send_message(update.effective_chat.id, SCHEDULED_MSG, parse_mode="MARKDOWN")
 
 
+@run_async
+def live(update, context):
+    LIVE_MSG = 'No live matches! Use /matches to get match list'
+    live_scores = FGM.read_file('live.json')
+    if live_scores:
+        LIVE_MSG = 'LIVE\n'
+        for score in live_scores:
+            LIVE_MSG += '---\n' \
+                        + score['time'] \
+                        + ' ' \
+                        + score['homeTeam']['name'] \
+                        + ' ' \
+                        + score['score']['fullTimer']['homeTeam'] \
+                        + ' vs ' \
+                        + score['fullTime']['awayTeam'] \
+                        + ' ' \
+                        + score['awayTeam']['name'] \
+                        + '\n'
+
+    context.bot.send_message(update.effective_chat.id, LIVE_MSG, parse_mode="MARKDOWN")
+
+
+def timer_func():
+    Timer(10.0, timer_func).start()
+    update_matches()
+
+
+def timer_func2():
+    Timer(4.0, timer_func2).start()
+    update_live()
+
+
 def main():
     timer_func()
+    timer_func2()
+    FGM.live_matches()
     dp.add_handler(CommandHandler('start', start, filters=Filters.private))
     dp.add_handler(CommandHandler('matches', matches, filters=Filters.private))
+    dp.add_handler(CommandHandler('live', live, filters=Filters.private))
     updater.start_polling()
     updater.idle()
 

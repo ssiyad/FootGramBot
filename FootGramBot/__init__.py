@@ -19,6 +19,13 @@ class FGM(object):
         return response
 
     @staticmethod
+    def live_matches():
+        connection = http.client.HTTPConnection('soccer-cli.appspot.com')
+        connection.request('GET', '/')
+        response = json.loads(connection.getresponse().read().decode())
+        return response
+
+    @staticmethod
     def read_data():
         with open('data.json', 'r') as file:
             return json.load(file)
@@ -26,6 +33,16 @@ class FGM(object):
     @staticmethod
     def save_data(data):
         with open('data.json', 'w') as file:
+            json.dump(data, file)
+
+    @staticmethod
+    def read_file(filename):
+        with open(filename, 'r') as file:
+            return json.load(file)
+
+    @staticmethod
+    def save_file(data, filename):
+        with open(filename, 'w') as file:
             json.dump(data, file)
 
 
