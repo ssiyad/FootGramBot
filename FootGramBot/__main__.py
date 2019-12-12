@@ -52,7 +52,7 @@ def matches(update, context):
     for match in match_data:
         match_date = datetime.datetime.strptime(match['utcDate'], '%Y-%m-%dT%H:%M:%SZ')
         time_diff = match_date - datetime.datetime.utcnow()
-        if -3 < time_diff.days < 3:
+        if -2 < time_diff.days < 2:
             if match['status'] == 'SCHEDULED':
                 SCHEDULED.append(match)
             elif match['status'] == 'FINISHED':
@@ -121,7 +121,7 @@ def live(update, context):
 
 
 def timer_func():
-    Timer(10.0, timer_func).start()
+    Timer(60.0, timer_func).start()
     update_matches()
 
 
