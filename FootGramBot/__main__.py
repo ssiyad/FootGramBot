@@ -142,15 +142,15 @@ def button(update, context):
                     SCHEDULED.append(match)
 
         if SCHEDULED:
-            EDIT_MSG = f'Upcoming {comp} matches\n'
+            EDIT_MSG = f'*Upcoming {comp} matches*\n'
             for match in SCHEDULED:
-                EDIT_MSG += '---\n' \
+                EDIT_MSG += '---\n_' \
                             + datetime.datetime.strptime(match['utcDate'], '%Y-%m-%dT%H:%M:%SZ').strftime('%A %d %B %l:%M %p') \
-                            + '\n**' \
+                            + '_\n*' \
                             + match['homeTeam']['name'] \
-                            + '** vs **' \
+                            + '* vs *' \
                             + match['awayTeam']['name'] \
-                            + '**\n'
+                            + '*\n'
 
     elif 'recent' in query.data:
         FINISHED = []
@@ -165,21 +165,21 @@ def button(update, context):
                     FINISHED.append(match)
 
         if FINISHED:
-            EDIT_MSG = f'Recent {comp} matches\n'
+            EDIT_MSG = f'*Recent {comp} matches*\n'
             for match in FINISHED:
-                EDIT_MSG += '---\n' \
-                                + match['homeTeam']['name'] \
-                                + ' ' \
-                                + str(match['score']['fullTime']['homeTeam']) \
-                                + ' vs ' \
-                                + str(match['score']['fullTime']['awayTeam']) \
-                                + ' ' \
-                                + match['awayTeam']['name'] \
-                                + '\n'
+                EDIT_MSG += '---\n*' \
+                            + match['homeTeam']['name'] \
+                            + '* _' \
+                            + str(match['score']['fullTime']['homeTeam']) \
+                            + '_ vs _' \
+                            + str(match['score']['fullTime']['awayTeam']) \
+                            + '_ *' \
+                            + match['awayTeam']['name'] \
+                            + '*\n'
 
     context.bot.edit_message_text(text=EDIT_MSG, chat_id=query.message.chat_id,
                                   message_id=query.message.message_id,
-                                  parse_mode="MARKDOWN")
+                                  parse_mode='MARKDOWN')
 
 
 def timer_func():
@@ -193,8 +193,8 @@ def timer_func2():
 
 
 def main():
-    timer_func()
-    timer_func2()
+    # timer_func()
+    # timer_func2()
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_handler(CommandHandler('start', start, filters=Filters.private))
     dp.add_handler(CommandHandler('recent', recent, filters=Filters.private))
