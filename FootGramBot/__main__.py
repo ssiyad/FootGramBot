@@ -187,9 +187,9 @@ def button(update, context):
                             + ' ' \
                             + match['homeTeam']['name'] \
                             + ' ' \
-                            + match['score']['fullTime']['homeTeam'] \
+                            + str(match['score']['fullTime']['homeTeam']) \
                             + ' vs ' \
-                            + match['score']['fullTime']['awayTeam'] \
+                            + str(match['score']['fullTime']['awayTeam']) \
                             + ' ' \
                             + match['awayTeam']['name'] \
                             + '\n'
