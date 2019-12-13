@@ -2,6 +2,7 @@ import datetime
 from threading import Timer
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.utils.helpers import escape_markdown
 from telegram.ext import CommandHandler, CallbackQueryHandler, run_async
 from telegram.ext import Filters
 
@@ -172,7 +173,7 @@ def button(update, context):
 
     elif 'live' in query.data:
         LIVE = []
-        comp = FGM.find_comp(query.data.replace('recent', ''))
+        comp = FGM.find_comp(query.data.replace('live', ''))
         match_data = FGM.read_data()
         EDIT_MSG = 'No live matches in ' + comp
         for match in match_data:
@@ -180,19 +181,16 @@ def button(update, context):
                 LIVE.append(match)
 
         if LIVE:
-            EDIT_MSG = f'Live {comp} matches*\n'
+            EDIT_MSG = f'*Live {comp} matches*\n'
             for match in LIVE:
-                EDIT_MSG += '---\n' \
-                            + match['time'] \
-                            + ' ' \
+                EDIT_MSG += '---\n*' \
                             + match['homeTeam']['name'] \
-                            + ' ' \
-                            + str(match['score']['fullTime']['homeTeam']) \
-                            + ' vs ' \
+                            + '* _' + str(match['score']['fullTime']['homeTeam']) \
+                            + '_ vs _' \
                             + str(match['score']['fullTime']['awayTeam']) \
-                            + ' ' \
+                            + '_ *' \
                             + match['awayTeam']['name'] \
-                            + '\n'
+                            + '*\n'
 
     context.bot.edit_message_text(text=EDIT_MSG, chat_id=query.message.chat_id,
                                   message_id=query.message.message_id,
@@ -205,7 +203,7 @@ def timer_func():
 
 
 def main():
-    timer_func()
+    # timer_func()
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_handler(CommandHandler('start', start, filters=Filters.private))
     dp.add_handler(CommandHandler('recent', recent, filters=Filters.private))
