@@ -2,12 +2,26 @@ import datetime
 from threading import Timer
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.utils.helpers import escape_markdown
 from telegram.ext import CommandHandler, CallbackQueryHandler, run_async
 from telegram.ext import Filters
 
 from FootGramBot import FGM, COMPETITIONS
 from FootGramBot import dp, updater
+
+
+def show_help(update, context):
+    HELP_MSG = '''
+Hello! How can I help you?
+
+`/start`:       Start the bot
+`/recent`:      Get recent matches with scores
+`/live`:        Get live matches with scores
+`/upcoming`:    Get upcoming fixtures
+
+Group Commands:
+`Coming Soon!`'''
+
+    context.bot.send_message(update.effective_chat.id, HELP_MSG, parse_mode="MARKDOWN")
 
 
 def update_matches():
@@ -203,9 +217,10 @@ def timer_func():
 
 
 def main():
-    # timer_func()
+    timer_func()
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_handler(CommandHandler('start', start, filters=Filters.private))
+    dp.add_handler(CommandHandler('help', show_help))
     dp.add_handler(CommandHandler('recent', recent, filters=Filters.private))
     dp.add_handler(CommandHandler('upcoming', upcoming, filters=Filters.private))
     dp.add_handler(CommandHandler('live', live, filters=Filters.private))

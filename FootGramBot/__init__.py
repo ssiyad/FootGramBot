@@ -19,13 +19,6 @@ class FGM(object):
         return response
 
     @staticmethod
-    def live_matches():
-        connection = http.client.HTTPConnection('soccer-cli.appspot.com')
-        connection.request('GET', '/')
-        response = json.loads(connection.getresponse().read().decode())
-        return response
-
-    @staticmethod
     def find_comp(comp):
         if comp in competitions:
             return competitions[comp]
