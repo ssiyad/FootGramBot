@@ -9,6 +9,7 @@ class Match(peewee.Model):
     id = peewee.PrimaryKeyField()
     match_id = peewee.IntegerField()
     comp = peewee.IntegerField()
+    matchday = peewee.CharField()
     stage = peewee.CharField()
     group = peewee.CharField()
     winner = peewee.CharField()
