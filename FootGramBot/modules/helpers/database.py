@@ -8,6 +8,7 @@ db = peewee.SqliteDatabase("db.db")
 class Match(peewee.Model):
     id = peewee.PrimaryKeyField()
     match_id = peewee.IntegerField()
+    comp = peewee.IntegerField()
     stage = peewee.CharField()
     group = peewee.CharField()
     winner = peewee.CharField()
