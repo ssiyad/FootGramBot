@@ -24,6 +24,8 @@ class Match(peewee.Model):
     pen_away = peewee.IntegerField(default=None)
     home = peewee.CharField()
     away = peewee.CharField()
+    home_id = peewee.IntegerField()
+    away_id = peewee.IntegerField()
     updated = peewee.DateField(default=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
     class Meta:
