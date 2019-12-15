@@ -12,7 +12,7 @@ class Match(peewee.Model):
     matchday = peewee.CharField()
     stage = peewee.CharField()
     group = peewee.CharField()
-    winner = peewee.CharField()
+    winner = peewee.CharField(null=True)
     duration = peewee.CharField()
     full_home = peewee.IntegerField()
     full_away = peewee.IntegerField()
