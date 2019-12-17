@@ -11,16 +11,23 @@ def search_match(update, context):
         FINISHED = []
         SCHEDULED = []
         LIVE = []
+        query_raw = ' '.join(context.args)
         query = ' '.join(context.args).lower()
         SEARCH_MSG = f'No results for {query}'
-        RESULTS = Match.select().limit(10)
+        count = 0
+        RESULTS = Match.select()
         for result in RESULTS:
             if query in result.home.lower() or query in result.away.lower():
-                if result.status == 'FINISHED':
-                    FINISHED.append(result)
+                if count < 20:
+                    if result.status == 'FINISHED':
+                        FINISHED.append(result)
+                        count += 1
 
-                elif result.status == 'SCHEDULED':
-                    SCHEDULED.append(result)
+                    elif result.status == 'SCHEDULED':
+                        SCHEDULED.append(result)
+                        count += 1
+                else:
+                    break
 
         LIVE_MATCHES = Live.select()
         for result in LIVE_MATCHES:
@@ -28,11 +35,11 @@ def search_match(update, context):
                 if 'UTC' not in result.time:
                     LIVE.append(result)
 
-        if FINISHED or SCHEDULED:
-            SEARCH_MSG = ''
+        if FINISHED or SCHEDULED or LIVE:
+            SEARCH_MSG = f'Results for {query_raw}\n---\n\n'
 
         if FINISHED:
-            SEARCH_MSG = f'Recent matches\n'
+            SEARCH_MSG += f'Recent matches\n'
             for result in FINISHED:
                 SEARCH_MSG += '---\n*' \
                               + result.home \
@@ -45,7 +52,10 @@ def search_match(update, context):
                               + '*\n'
 
         if SCHEDULED:
-            SEARCH_MSG += f'Upcoming matches\n'
+            if FINISHED:
+                SEARCH_MSG += f'---\n\nUpcoming matches\n'
+            else:
+                SEARCH_MSG += f'Upcoming matches\n'
             for result in SCHEDULED:
                 SEARCH_MSG += '---\n_' \
                               + datetime.datetime.strptime(result.date_utc, '%Y-%m-%dT%H:%M:%SZ').strftime('%A %d %B %l:%M %p') \
@@ -56,7 +66,10 @@ def search_match(update, context):
                               + '*\n'
 
         if LIVE:
-            SEARCH_MSG += f'Live matches\n'
+            if FINISHED or SCHEDULED:
+                SEARCH_MSG += f'---\n\nLive matches\n'
+            else:
+                SEARCH_MSG += f'Live matches\n'
             for result in LIVE:
                 SEARCH_MSG += '---\n_' \
                               + str(result.time) \
