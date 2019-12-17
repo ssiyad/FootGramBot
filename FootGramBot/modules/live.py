@@ -2,28 +2,26 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CommandHandler, run_async
 from telegram.ext import Filters
 
-from FootGramBot import dp, FGM
+from FootGramBot import dp
+from FootGramBot.modules.helpers.database import Live
 
 
 @run_async
 def live(update, context):
-    LIVE = []
     COMPS = []
     LIVE_MSG = 'No live matches! Use /recent or /upcoming to get match list'
-    match_data = FGM.read_data()
+    match_data = Live.select().where('UTC' not in Live.time)
     for match in match_data:
-        if match['status'] == 'IN_PLAY':
-            if match['comp'] not in COMPS:
-                COMPS.append(match['comp'])
-            LIVE.append(match)
+        if match.league not in COMPS:
+            COMPS.append(match.league)
 
-    if LIVE:
+    if COMPS:
         LIVE_MSG = 'Select below to get live scores\n'
 
     KEYBOARD = []
 
     for comp in COMPS:
-        but = [InlineKeyboardButton(FGM.find_comp(str(comp)), callback_data='live' + str(comp))]
+        but = [InlineKeyboardButton(comp, callback_data='live' + comp)]
         KEYBOARD.append(but)
 
     REPLY_MARKUP = InlineKeyboardMarkup(KEYBOARD)

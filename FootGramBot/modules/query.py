@@ -3,6 +3,7 @@ import datetime
 from telegram.ext import CallbackQueryHandler, run_async
 
 from FootGramBot import dp, FGM
+from FootGramBot.modules.helpers.database import Live
 
 
 @run_async
@@ -61,23 +62,25 @@ def button(update, context):
 
     elif 'live' in query.data:
         LIVE = []
-        comp = FGM.find_comp(query.data.replace('live', ''))
-        match_data = FGM.read_data()
-        EDIT_MSG = 'No live matches in ' + comp
+        match_data = Live.select().where('UTC' not in Live.time)
+        EDIT_MSG = 'No live matches in ' + query.data
         for match in match_data:
-            if match['status'] == 'IN_PLAY' and str(match['comp']) == query.data.replace('live', ''):
+            if match.league == query.data:
                 LIVE.append(match)
 
         if LIVE:
-            EDIT_MSG = f'*Live {comp} matches*\n'
+            EDIT_MSG = f'*Live {query.data} matches*\n'
             for match in LIVE:
-                EDIT_MSG += '---\n*' \
-                            + match['homeTeam']['name'] \
-                            + '* _' + str(match['score']['fullTime']['homeTeam']) \
-                            + '_ vs _' \
-                            + str(match['score']['fullTime']['awayTeam']) \
+                EDIT_MSG += '---\n_' \
+                            + match.time \
                             + '_ *' \
-                            + match['awayTeam']['name'] \
+                            + match.home \
+                            + '* _' \
+                            + str(match.goals_home) \
+                            + '_ vs _' \
+                            + str(match.goals_away) \
+                            + '_ *' \
+                            + match.away \
                             + '*\n'
 
     context.bot.edit_message_text(text=EDIT_MSG, chat_id=query.message.chat_id,
