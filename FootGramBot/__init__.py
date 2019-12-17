@@ -1,7 +1,7 @@
 import http.client
 import json
 from telegram.ext import Updater
-
+import datetime
 import config
 from competitions import comps as competitions
 
@@ -12,9 +12,11 @@ BOT_API = config.BOT_API
 class FGM(object):
     @staticmethod
     def matches(comp):
+        date_prev = (datetime.date.today() - datetime.timedelta(days=4)).strftime('%Y-%m-%d')
+        date_next = (datetime.date.today() + datetime.timedelta(days=4)).strftime('%Y-%m-%d')
         connection = http.client.HTTPConnection('api.football-data.org')
         headers = {'X-Auth-Token': config.KEY}
-        connection.request('GET', f'/v2/competitions/{comp}/matches', None, headers)
+        connection.request('GET', f'/v2/competitions/{comp}/matches?dateFrom={date_prev}&dateTo={date_next}', None, headers)
         response = json.loads(connection.getresponse().read().decode())
         return response
 
