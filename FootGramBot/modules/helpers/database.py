@@ -10,6 +10,7 @@ class Match(peewee.Model):
     match_id = peewee.IntegerField(unique=True)
     comp = peewee.CharField()
     matchday = peewee.IntegerField()
+    date_utc = peewee.CharField()
     status = peewee.CharField()
     stage = peewee.CharField(null=True)
     group = peewee.CharField(null=True)
