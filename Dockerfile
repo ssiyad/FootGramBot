@@ -1,5 +1,5 @@
 FROM python:3.8.0
-ADD ./ /opt/
-ENV PYTHONPATH="/opt/"
-RUN pip install -r /opt/requirements.txt
-CMD ["python", "/opt/FootGramBot/__main__.py"]
+ADD . /fgm/
+RUN pip install -r /fgm/requirements.txt
+WORKDIR /fgm/
+CMD ["python", "-m", "FootGramBot"]
