@@ -14,6 +14,7 @@ def update_matches():
                 d = {'match_id': match['id'],
                      'comp': comp,
                      'matchday': match['season']['currentMatchday'],
+                     'date_utc': match['utcDate'],
                      'status': match['status'],
                      'stage': match['stage'],
                      'group': match['group'],
