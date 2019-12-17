@@ -7,9 +7,9 @@ db = peewee.SqliteDatabase("db.db")
 
 class Match(peewee.Model):
     id = peewee.PrimaryKeyField()
-    match_id = peewee.IntegerField()
-    comp = peewee.IntegerField()
-    matchday = peewee.CharField()
+    match_id = peewee.IntegerField(unique=True)
+    comp = peewee.CharField()
+    matchday = peewee.IntegerField()
     status = peewee.CharField()
     stage = peewee.CharField(null=True)
     group = peewee.CharField(null=True)
@@ -27,7 +27,7 @@ class Match(peewee.Model):
     away = peewee.CharField()
     home_id = peewee.IntegerField()
     away_id = peewee.IntegerField()
-    updated = peewee.DateField(default=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    updated = peewee.DateField(default=datetime.datetime.now())
 
     class Meta:
         database = db
@@ -42,7 +42,7 @@ class Live(peewee.Model):
     goals_away = peewee.IntegerField()
     home = peewee.CharField()
     away = peewee.CharField()
-    updated = peewee.DateField(default=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    updated = peewee.DateField(default=datetime.datetime.now())
 
     class Meta:
         database = db
