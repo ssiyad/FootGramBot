@@ -12,7 +12,7 @@ def search_match(update, context):
         SCHEDULED = []
         LIVE = []
         query_raw = ' '.join(context.args)
-        query = ' '.join(context.args).lower()
+        query = query_raw.lower()
         SEARCH_MSG = f'No results for {query}'
         count = 0
         RESULTS = Match.select()
