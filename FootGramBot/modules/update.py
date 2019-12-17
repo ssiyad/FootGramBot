@@ -38,6 +38,7 @@ def update_matches():
 
 def update_live():
     live_matches = FGM.live()
+    Live.delete()
     if live_matches['games']:
         LIVE_DATA = []
         for match in live_matches['games']:
