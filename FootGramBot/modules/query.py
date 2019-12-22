@@ -63,10 +63,10 @@ def button(update, context):
     elif 'live' in query.data:
         LIVE = []
         comp = FGM.find_comp(query.data.replace('live', ''))
-        match_data = Live.select().where('UTC' not in Live.time)
+        match_data = Live.select()
         EDIT_MSG = 'No live matches in ' + comp
         for match in match_data:
-            if match.league == query.data.replace('live', ''):
+            if match.league == query.data.replace('live', '') and 'UTC' not in match.time:
                 LIVE.append(match)
 
         if LIVE:
@@ -74,7 +74,7 @@ def button(update, context):
             for match in LIVE:
                 EDIT_MSG += '---\n_' \
                             + str(match.time) \
-                            + '_ *' \
+                            + '_  *' \
                             + match.home \
                             + '* _' \
                             + str(match.goals_home) \

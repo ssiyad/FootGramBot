@@ -10,9 +10,9 @@ from FootGramBot.modules.helpers.database import Live
 def live(update, context):
     COMPS = []
     LIVE_MSG = 'No live matches! Use /recent or /upcoming to get match list'
-    match_data = Live.select().where('UTC' not in Live.time)
+    match_data = Live.select()
     for match in match_data:
-        if match.league not in COMPS:
+        if match.league not in COMPS and 'UTC' not in match.time:
             COMPS.append(match.league)
 
     if COMPS:
