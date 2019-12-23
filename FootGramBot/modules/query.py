@@ -66,7 +66,7 @@ def button(update, context):
         match_data = Live.select()
         EDIT_MSG = 'No live matches in ' + comp
         for match in match_data:
-            if match.league == query.data.replace('live', '') and 'UTC' not in match.time:
+            if match.league == query.data.replace('live', '') and (match.time.isdigit() or match.time == 'HT'):
                 comp = match.league
                 LIVE.append(match)
 

@@ -12,7 +12,7 @@ def live(update, context):
     LIVE_MSG = 'No live matches! Use /recent or /upcoming to get match list'
     match_data = Live.select()
     for match in match_data:
-        if match.league not in COMPS and 'UTC' not in match.time:
+        if match.league not in COMPS and (match.time.isdigit() or match.time == 'HT'):
             COMPS.append(match.league)
 
     if COMPS:
