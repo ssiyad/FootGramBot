@@ -1,4 +1,7 @@
-from threading import Timer
+from threading import Thread
+from time import sleep
+
+import schedule
 
 from FootGramBot import FGM, COMPETITIONS
 from FootGramBot.modules.helpers.database import Match, Live
@@ -54,15 +57,17 @@ def update_live():
         Live.insert_many(LIVE_DATA).on_conflict('replace').execute()
 
 
-def match_per_minute():
-    Timer(60.0, match_per_minute).start()
-    update_matches()
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        sleep(1)
 
 
-def live_per_30_sec():
-    Timer(30.0, live_per_30_sec).start()
-    update_live()
+def threaded(job):
+    Thread(target=job).start()
 
 
-live_per_30_sec()
-match_per_minute()
+schedule.every().day.at('00:00').do(threaded, update_matches)
+schedule.every(5).seconds.do(threaded, update_live)
+
+threaded(run_scheduler)
