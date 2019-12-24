@@ -50,6 +50,46 @@ class Live(peewee.Model):
         table_name = 'lives'
 
 
+class Team(peewee.Model):
+    id = peewee.PrimaryKeyField()
+    team_id = peewee.IntegerField()
+    name = peewee.CharField()
+    short_name = peewee.CharField()
+    tla = peewee.CharField()
+    crest_url = peewee.CharField()
+    address = peewee.CharField()
+    phone = peewee.CharField(null=True)
+    website = peewee.CharField(null=True)
+    email = peewee.CharField(null=True)
+    founded = peewee.CharField()
+    stadium = peewee.CharField()
+    updated = peewee.DateField(default=datetime.datetime.now())
+
+    class Meta:
+        database = db
+        table_name = 'teams'
+
+
+class Player(peewee.Model):
+    id = peewee.PrimaryKeyField()
+    player_id = peewee.IntegerField()
+    name = peewee.CharField()
+    team = peewee.CharField()
+    position = peewee.CharField()
+    dob = peewee.CharField()
+    born_in = peewee.CharField()
+    nationality = peewee.CharField()
+    shirt_no = peewee.IntegerField(null=True)
+    role = peewee.CharField()
+    updated = peewee.DateField(default=datetime.datetime.now())
+
+    class Meta:
+        database = db
+        table_name = 'players'
+
+
 # create_tables
 Match.create_table()
 Live.create_table()
+Team.create_table()
+Player.create_table()

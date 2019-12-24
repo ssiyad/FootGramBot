@@ -67,6 +67,8 @@ def threaded(job):
     Thread(target=job).start()
 
 
+update_matches()
+update_live()
 schedule.every().day.at('00:00').do(threaded, update_matches)
 schedule.every(5).seconds.do(threaded, update_live)
 
