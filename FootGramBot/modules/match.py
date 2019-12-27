@@ -17,14 +17,17 @@ def search_match(update, context):
         count = 0
         RESULTS = Match.select()
         for result in RESULTS:
-            if query in result.home.lower() or query in result.away.lower():
+            match_date = datetime.datetime.strptime(result.date_utc, '%Y-%m-%dT%H:%M:%SZ')
+            time_diff = match_date - datetime.datetime.utcnow()
+            if -4 < time_diff.days < 5:
                 if count < 20:
-                    if result.status == 'FINISHED':
-                        FINISHED.append(result)
-                        count += 1
+                    if query in result.home.lower() or query in result.away.lower():
+                        if result.status == 'FINISHED':
+                            FINISHED.append(result)
+                            count += 1
 
-                    elif result.status == 'SCHEDULED':
-                        SCHEDULED.append(result)
+                        elif result.status == 'SCHEDULED':
+                            SCHEDULED.append(result)
                         count += 1
                 else:
                     break
@@ -32,7 +35,7 @@ def search_match(update, context):
         LIVE_MATCHES = Live.select()
         for result in LIVE_MATCHES:
             if query in result.home.lower() or query in result.away.lower():
-                if 'UTC' not in result.time:
+                if 'UTC' not in result.time and 'FT' not in result.time:
                     LIVE.append(result)
 
         if FINISHED or SCHEDULED or LIVE:
