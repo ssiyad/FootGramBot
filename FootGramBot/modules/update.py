@@ -3,8 +3,8 @@ from time import sleep
 
 import schedule
 
-from FootGramBot import FGM, COMPETITIONS
-from FootGramBot.modules.helpers.database import Match, Live
+from FootGramBot import FGM, COMPETITIONS, dp
+from FootGramBot.modules.helpers.database import Match, Live, Sub
 
 
 def update_matches():
@@ -42,6 +42,8 @@ def update_matches():
 
 def update_live():
     live_matches = FGM.live()
+    live_matches_ex = Live.select()
+    sub_team_list = Sub.select()
     Live.delete().execute()
     if live_matches['games']:
         LIVE_DATA = []
@@ -54,6 +56,13 @@ def update_live():
                  'away': match['awayTeamName']}
 
             LIVE_DATA.append(d)
+            if match['homeTeamName'] in live_matches_ex.home:
+                for ex in live_matches_ex:
+                    if match['homeTeamName'] == ex.home and (ex.goals_home != match['goalsHomeTeam'] or ex.goals_away != match['goalsAwayTeam']):
+                        UPDATE_MSG = f'Goal!\n\n{ex.home}: {ex.goals_home}\n{ex.away}: {ex.goals_away}'
+                        for row in sub_team_list:
+                            if row.team in (match['homeTeamName'], match['awayTeamName']):
+                                dp.bot.send_message(row.chat_id, UPDATE_MSG, parse_mode="MARKDOWN")
         Live.insert_many(LIVE_DATA).on_conflict('replace').execute()
 
 
