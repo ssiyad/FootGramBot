@@ -54,15 +54,15 @@ def update_live():
                  'goals_away': match['goalsAwayTeam'],
                  'home': match['homeTeamName'],
                  'away': match['awayTeamName']}
-
             LIVE_DATA.append(d)
-            if match['homeTeamName'] in live_matches_ex.home:
-                for ex in live_matches_ex:
-                    if match['homeTeamName'] == ex.home and (ex.goals_home != match['goalsHomeTeam'] or ex.goals_away != match['goalsAwayTeam']):
-                        UPDATE_MSG = f'Goal!\n\n{ex.home}: {ex.goals_home}\n{ex.away}: {ex.goals_away}'
-                        for row in sub_team_list:
-                            if row.team in (match['homeTeamName'], match['awayTeamName']):
-                                dp.bot.send_message(row.chat_id, UPDATE_MSG, parse_mode="MARKDOWN")
+            for ex in live_matches_ex:
+                if match['homeTeamName'] == ex.home and (ex.goals_home != match['goalsHomeTeam'] or ex.goals_away != match['goalsAwayTeam']):
+                    UPDATE_MSG = f'Goal!\n\n{ex.home}: {ex.goals_home}\n{ex.away}: {ex.goals_away}'
+                    for row in sub_team_list:
+                        if row.team in (match['homeTeamName'], match['awayTeamName']):
+                            print(UPDATE_MSG)
+                            dp.bot.send_message(row.chat_id, UPDATE_MSG, parse_mode="MARKDOWN")
+
         Live.insert_many(LIVE_DATA).on_conflict('replace').execute()
 
 

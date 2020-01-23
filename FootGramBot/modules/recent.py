@@ -1,7 +1,7 @@
 import datetime
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CommandHandler, run_async
+from telegram.ext import CommandHandler, run_async, MessageHandler
 from telegram.ext import Filters
 
 from FootGramBot import dp, FGM
@@ -14,7 +14,8 @@ def recent(update, context):
     FINISHED_MSG = 'No Recent Matches'
     match_data = Match.select().where(Match.status == 'FINISHED')
     for match in match_data:
-        match_date = datetime.datetime.strptime(match.date_utc, '%Y-%m-%dT%H:%M:%SZ')
+        match_date = datetime.datetime.strptime(
+            match.date_utc, '%Y-%m-%dT%H:%M:%SZ')
         time_diff = match_date - datetime.datetime.utcnow()
         if -4 < time_diff.days < 0:
             if match.comp not in COMPS:
@@ -26,7 +27,8 @@ def recent(update, context):
     KEYBOARD = []
 
     for comp in COMPS:
-        but = [InlineKeyboardButton(FGM.find_comp(comp), callback_data='recent' + str(comp))]
+        but = [InlineKeyboardButton(FGM.find_comp(
+            comp), callback_data='recent' + str(comp))]
         KEYBOARD.append(but)
 
     REPLY_MARKUP = InlineKeyboardMarkup(KEYBOARD)
@@ -36,3 +38,4 @@ def recent(update, context):
 
 
 dp.add_handler(CommandHandler('recent', recent, filters=Filters.private))
+dp.add_handler(MessageHandler(Filters.private & Filters.regex(r'Recent'), recent))

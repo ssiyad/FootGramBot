@@ -14,7 +14,6 @@ def add_to_sub(update, team):
     SUB_MSG = ''
     match_data = Live.select()
     for match in match_data:
-        print(team in (match.home, match.away))
         if team in (match.home, match.away):
             Sub.insert(chat_id=update.effective_chat.id,
                        chat_type=update.effective_chat.type,
