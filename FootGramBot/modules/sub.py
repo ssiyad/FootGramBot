@@ -17,10 +17,9 @@ def add_to_sub(update, team):
         if team in (match.home, match.away):
             Sub.insert(chat_id=update.effective_chat.id,
                        chat_type=update.effective_chat.type,
-                       added_by=update.effective_chat.first_name,
-                       added_by_id=update.effective_chat.id,
                        team=team).on_conflict('replace').execute()
             SUB_MSG = f'Added {team} to sub list'
+            break
         else:
             SUB_MSG = f'Can not find {team} in /live matches'
 

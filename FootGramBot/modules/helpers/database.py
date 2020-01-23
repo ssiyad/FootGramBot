@@ -92,10 +92,7 @@ class Sub(peewee.Model):
     id = peewee.PrimaryKeyField()
     chat_id = peewee.IntegerField()
     chat_type = peewee.CharField()
-    added_by = peewee.CharField()
-    added_by_id = peewee.IntegerField()
     team = peewee.CharField()
-    updated = peewee.DateField(default=datetime.datetime.now())
 
     class Meta:
         database = db
